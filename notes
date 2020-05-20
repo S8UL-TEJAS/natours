@@ -1,0 +1,143 @@
+---Always keep your mongo server running
+1. use natrous-test
+    This will create a new database called natrous-test and if it's aldready existed then it will switch to it
+2. show dbs will show all databases.
+3. show collections will show all collections.
+
+////////////////////////////////////////////
+// CREATING DOCUMENTS
+4. db.tours.insertMany();
+    This will create a new collection called 'tours' in current database5. db.tours.insertMany()
+     is going to accept array of multiple documents
+
+////////////////////////////////////////////
+// READING DOCUMENTS
+5. db.tours.find() will give all documents in tours collection
+6. db.tours.find({difficulty:"easy"}) will give all the tours with difficulty 'easy'
+7. db.tours.find({price:{$lte:500}}) will give you all the tours with price less than 500
+    '$' sign signifies mongo operator
+8. db.tours.find({price:{$lte:500} , price:{$gte300}});
+9. db.tours.find({$or:[{price:{$lte:500}},{price:{$gte:300}}]});
+10. db.tours.find({name:1}) or db.tours.find('name')
+    This will outputs tours only with their 'name' key and value
+
+//////////////////////////////////////////////
+// UPDATING DOCUMENTS
+--- First select which documents to be updated and then the data to be updated with
+11. db.tours.updateOne({name:"The snow adventure"},{$set:{price:597})}
+     EXERCISE: setting property "premium":true on tours which have price>500 and ratings >4.8
+     ANSWER: db.tours.updateMany({{price:{$gte:500} , ratings:{$gte:4.8}},{$set:{"premium":true}})
+
+////////////////////////////////////////////////
+// DELETING DOCUMENTS
+12. db.tours.deleteMany({ratings:{$gte:4}})
+    Deleting all tours with ratings greater than 4.0
+13. --Deleting every document : db.tours.deleteMany({});
+
+
+/////////////////////////////////////////////
+// 'Clusture is like the instance of the database'
+
+
+
+
+--------------------------------SECTION 8: USING MONGODB WITH MONGOOSE----------------------------------
+---------Connecting Our DB with Express App :
+1. DATABASE_LOCAL:mongodb://localhost:27017/natrous    ('natrou' is name of datase in which our clusture lives)
+2. DATABASE_CLOUD:DATABASE=mongodb+srv://jonas:<PASSWORD>@cluster0-pwikv.mongodb.net/natours?retryWrites=true
+    Here PASSWORD should be our database password and 'pwikv.mongodb.net' is the location of our database and 'natours' is the name of our database
+Mongoose is popular mongodb driver so that our Node code can talk to the mongodb database
+
+mongoose
+  .connect(DB, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false
+  })
+  .then((con) => console.log('DB connection successful!'));
+
+
+
+----------What is Mongoose:Mongoose is ODM(Object Data Modelling) library for mongodb and nodejs , a higher
+level of abstraction . Its just like relation between nodejs and express. Just a way of writing Javascript code
+so that we can talk to database
+    ----Features of mongoose : schemas to model data and relationships , easy data validation , simple query API , middleware etc.
+
+
+------AGGREGATION PIPELINING:
+    $group:{
+        _id:null   // group by id but its set to null therefore everything will be in one group
+
+    }
+    BUT IF WE SAY LIKE THIS:
+    $group:{
+        _id:'$difficulty'
+    }
+    THEN IT WILL RETURN 3 DIFFERENT DOCUMENTS FOR 3 DIFFERENT DIFFICULTY LEVEL FIELDS(EASY,MEDIUM,TOUGH)
+
+---- In the query middleware , 'this' will points to current query
+---- In the document middleware , 'this' will points to current document
+--- In the aggregation middleware , 'this' will points to current aggregation object
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+VIRTUAL POPULATE: How to get review of specific tours or users
+We have done parent referencing on reviews which means only review knows about who writed that review and for which tour
+So we are going to solve the problem and will be able to get reviews of particular tours or reviews written by user
+There are 2 solutions the first one is to manually query for reviews each time we query for tour and the second
+one is to store review ID's in tour as array but we aldready ruled out that possibility coz that array of review ID's
+can become very large
+So we are going to do VIRTUAL referencing
+    
+*******
+VIRTUAL POPULATE : WE CAN GET ALL REVIEWS ON particular TOUR WITHOUT STORING ARRAY OF REVIEW ID ON THAT TOUR DOCUMENT
+
+MERGE PARAMS IS FEATURE OF EXPRESS AND ITS QUIT IMPORTANT IN API DESIGNING. IN THIS WE IMPORT ROUTER
+
+
+***********************************************************************************************************
+INDEXES:
+    setting index: tourSchema.index({price:1})
+    IN our Schema defination we set name:unique therefore mongo created name index as unique
+**********************************************************************************************************
+PUG:
+    1.Pug is simple whitespace sensitive syntax for writing HTML
+    2.In pug we write attributes in paranthesis like this:
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        link(rel="stylesheet", href="css/style.css")
+            But why does css gets loaded from public folder 
+            This is also a http request(check networks tab in dev tools)
+            This are static assets that's why we don't need to write public/css/style.css
+    3.
+        app.get('/',(req,res)=>{
+            res.status(200).render('base',{
+                tour:'tHE PARK CAMPER',
+                user:'Tejas'   // this are called locals in pug
+            });
+        });
+        tour and user are local variales in pug
+        in base.pug
+        h1= tours
+        h2= user.toUpperCase()   //buffered code
+        title Natours | #{tour}    // interpollution string
+        - const x=9    // this is unbuffered code means it will not contribute in output
+        h2= 2*x
+
+    4. comments
+        // this will produce comments in HTML
+        //- this is normal comment
+    5. Including files in pug 
+        make _footer.pug and _header.pug in views folder
+        use as _include footer or _include header in base.pug or wherever you want
+    ******************************IMPORTANT******************************************
+    6. Extending Our base template with Blogs
+        
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------
+Browser will not send cookie each time with new request that's why we need cookie-parser
