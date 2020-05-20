@@ -141,3 +141,10 @@ PUG:
 
 -------------------------------------------------------------------------------------------------------------
 Browser will not send cookie each time with new request that's why we need cookie-parser
+
+---------------------------------
+git status
+git add -A
+git add readme.md
+git commit -m "Added a readme"
+git push origin master

@@ -24,6 +24,7 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 app.use(express.json());
+
 app.use((req, res, next) => {
   console.log('Hello from the middleware 👋');
   console.log(req.cookies);
